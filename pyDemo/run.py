@@ -96,7 +96,7 @@ if __name__ == '__main__':
     ))
 
     print(run_by_uuid(
-        uuid="7bf2e539-bb7b-4156-86b8-b66a478cd3a6",
+        uuid="0d44260b-88e4-4340-8d04-cd462b42ea35",
         func_name="hello",
         timeout=5
     ))

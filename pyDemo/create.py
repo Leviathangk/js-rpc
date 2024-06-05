@@ -104,7 +104,7 @@ if __name__ == '__main__':
     ))
 
     print(create_by_uuid(
-        uuid="19f958a9-32c6-4a10-9ae7-196b888acde6",
+        uuid="0d44260b-88e4-4340-8d04-cd462b42ea35",
         func_name="hello",
         func_body="console.log('你好')",
         timeout=5

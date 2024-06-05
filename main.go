@@ -46,7 +46,7 @@ func getAddr() {
 }
 
 func main() {
-	// getAddr()
+	getAddr()
 	router := gin.Default()
 	router.GET("/", index)          // 首页：http://127.0.0.1:8080/
 	router.GET("/rpc", handler.Rpc) // rpc：127.0.0.1:8080/rpc

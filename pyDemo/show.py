@@ -66,12 +66,12 @@ def show_client_functions(uuid: str, timeout: int = None) -> List[str]:
 
 
 if __name__ == '__main__':
-    # show_domain_clients(
-    #     domain="newtab",
-    #     timeout=5
-    # )
+    show_domain_clients(
+        domain="newtab",
+        timeout=5
+    )
 
     show_client_functions(
-        uuid="36fcb811-1d04-4c28-bfc1-05aa50c37986",
+        uuid="0d44260b-88e4-4340-8d04-cd462b42ea35",
         timeout=5
     )
