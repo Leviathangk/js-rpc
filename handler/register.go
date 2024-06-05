@@ -84,13 +84,13 @@ func (m *Manager) GetClientByUUID(uuid string) (*Client, bool) {
 }
 
 // AddClient 添加一个机器
-func (m *Manager) AddClient(conn *websocket.Conn) *Client {
+func (m *Manager) AddClient(conn *websocket.Conn, clientUUID string) *Client {
 	m.Locker.Lock()
 	defer m.Locker.Unlock()
 
 	client := &Client{
 		Conn: conn,
-		UUID: CreateUUID(),
+		UUID: clientUUID,
 	}
 
 	m.Clients[client.UUID] = client

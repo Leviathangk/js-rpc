@@ -34,6 +34,12 @@ func Rpc(c *gin.Context) {
 	var err error
 	var wsConn *websocket.Conn
 
+	// 获取客户端的 uuid
+	clientUUID := c.Query("uuid")
+	if len(clientUUID) == 0 {
+		clientUUID = CreateUUID()
+	}
+
 	// 升级为 ws 连接
 	wsConn, err = upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -45,7 +51,7 @@ func Rpc(c *gin.Context) {
 	}
 
 	// 保存客户端
-	client := manager.AddClient(wsConn)
+	client := manager.AddClient(wsConn, clientUUID)
 	glog.Debugf("连接建立：%s -> %s\n", wsConn.RemoteAddr().String(), client.UUID)
 
 	// 发送初始消息

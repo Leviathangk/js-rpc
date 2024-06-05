@@ -1,13 +1,13 @@
-function GkRpc(url) {
+window.GkRpc = function GkRpc(url, uuid) {
     if (!url) {
         throw new Error("无建立连接的 Url!")
     }
-
+    this.uuid = uuid || this.generateUUIDv4();
     this.url = url;
     this.functions = {};
-    this.uuid = null;
     this.starting = false;
-    this.connect();
+    this.newConn();
+    this._retryInterval; // setTimeout 的返回
 
     this.TypeOpen = 0;   // 打开信号
     this.TypeCreate = 1;   // 创建信号
@@ -17,16 +17,48 @@ function GkRpc(url) {
     this.TypeEval = 5;  // eval 信号
 }
 
-// connect 创建连接
-GkRpc.prototype.connect = function () {
+// 创建连接
+GkRpc.prototype.newConn = function (){
+    console.log("正在尝试连接：", this.url);
+
+    this.socket = new WebSocket(this.url + "?uuid=" + this.uuid);
     let _this = this;
-    console.log("正在连接：", this.url);
-    this.socket = new WebSocket(this.url);
 
     // onOpen 创建连接时的函数
     this.socket.onopen = function () {
         console.log("连接成功：", _this.url);
+
+        // 设置停止信号
+        _this.starting = false;
+
+        // 去掉循环连接
+        if(_this._retryInterval){
+            clearInterval(_this._retryInterval);
+            _this._retryInterval = null;
+        }
+
+        // 建立其它的事件处理机制
+        _this.connect();
     };
+};
+
+// 重新连接
+GkRpc.prototype.reConn = function (){
+    this._retryInterval = setInterval(this.newConn.bind(this), 5000);   // 不能太低，因为 ws 连接创建本身需要时间
+};
+
+// 生成 uuid
+GkRpc.prototype.generateUUIDv4 = function (){
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0,
+            v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+// connect 创建连接
+GkRpc.prototype.connect = function () {
+    let _this = this;
 
     // onmessage 接收信息时的函数
     this.socket.onmessage = function (recv) {
@@ -37,9 +69,7 @@ GkRpc.prototype.connect = function () {
         // 判断消息类型
         switch (msgType) {
             case _this.TypeOpen:
-                _this.uuid = recv["uuid"];
                 _this.sendJson({ "type": _this.TypeOpen, "msg": { "domain": location.hostname } });
-                _this.starting === false;
                 break
             case _this.TypeCreate:
                 _this.createRpc(recvJson);
@@ -63,30 +93,20 @@ GkRpc.prototype.connect = function () {
 
     // onerror 连接出错时的函数
     this.socket.onerror = function (e) {
-        console.log("连接出错，将在 8s 后重试连接：", e)
-        setTimeout(function () {
-            if (_this.starting === false) {
-                _this.starting === true
-                console.log("error 尝试中...")
-                _this.connect()
-            } else {
-                console.log("error 放弃...")
-            }
-        }, 8 * 1000)
+        console.log("连接出错，将在 5s 后重试连接：", e);
+        if(_this.starting === false && _this.socket.readyState !== 1 ){
+            _this.starting = true;
+            _this.reConn();
+        }
     }
 
     // onclose 连接关闭时的函数
     this.socket.onclose = function () {
-        console.log("连接被动关闭，将在 10s 后重试连接")
-        setTimeout(function () {
-            if (_this.starting === false) {
-                _this.starting === true
-                console.log("close 尝试中...")
-                _this.connect()
-            } else {
-                console.log("close 放弃...")
-            }
-        }, 10 * 1000)
+        console.log("服务端异常，请检查服务是否开启，将在 5s 后重试连接");
+        if(_this.starting === false && _this.socket.readyState !== 1 ){
+            _this.starting = true;
+            _this.reConn();
+        }
     }
 }
 
