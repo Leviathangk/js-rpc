@@ -40,3 +40,6 @@ print(run_by_uuid(
 # static
 
 需要注入的 js 文件
+
+# 注意
+目前的 websocket 库有严重问题，并发容易报错，比如同时并发的给一个 ws 连接发送消息，立刻就会 panic 退出
