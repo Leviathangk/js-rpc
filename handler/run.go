@@ -8,7 +8,7 @@ import (
 
 // Run 运行 rpc
 func Run(c *gin.Context) {
-	fields := []string{"domain", "funcName"}
+	fields := []string{"domain", "funcName", "args"}
 
 	// 获取、检查、构造消息
 	missField, msg := fieldsCheck(c, fields)
@@ -28,7 +28,7 @@ func Run(c *gin.Context) {
 
 // Run 运行 rpc
 func RunByUUID(c *gin.Context) {
-	fields := []string{"uuid", "funcName"}
+	fields := []string{"uuid", "funcName", "args"}
 
 	// 获取、检查、构造消息
 	missField, msg := fieldsCheck(c, fields)

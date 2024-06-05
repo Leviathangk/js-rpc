@@ -142,6 +142,9 @@ GkRpc.prototype.run = function (recvJson) {
     let _this = this;
     let funcName = recvJson["funcName"];
     const eventId = recvJson["eventId"];
+    if(recvJson.args){
+        recvJson.args = JSON.parse(recvJson.args);
+    }
     let hasSend = false;
 
     if (funcName in this.functions) {
