@@ -28,7 +28,7 @@ func getAddr() {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		fmt.Printf("默认启动 addr：%s，输入 out 可随时退出使用默认\n", serverAddr)
+		fmt.Printf("默认启动 addr：%s，按回车输入自定义 addr 或退出\n", serverAddr)
 		fmt.Print("请输入 ip:port：")
 		text, err := reader.ReadString('\n')
 		if err != nil {
@@ -36,7 +36,7 @@ func getAddr() {
 		}
 
 		text = strings.TrimSpace(text)
-		if text == "out" {
+		if text == "" {
 			break
 		} else if text != "" {
 			serverAddr = text

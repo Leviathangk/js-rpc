@@ -153,7 +153,7 @@ func wait(backChan chan gin.H, client *Client, msg map[string]any, timeout int) 
 	defer func() {
 		if r := recover(); r != nil {
 			glog.Errorln("Recovered in wait", r)
-			
+
 			backChan <- gin.H{
 				"success": false,
 				"msg": gin.H{
@@ -166,7 +166,9 @@ func wait(backChan chan gin.H, client *Client, msg map[string]any, timeout int) 
 	}()
 
 	// 发出消息
+	msgContext.Locker.Lock()
 	err := client.Conn.WriteJSON(msg)
+	msgContext.Locker.Unlock()
 	if err != nil {
 		backChan <- gin.H{
 			"success": false,

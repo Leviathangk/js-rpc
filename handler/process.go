@@ -60,14 +60,13 @@ func (c *Client) ProcessMsg(m []byte) {
 	default:
 		if msgContext, ok := managerMsg[msg.EventId]; ok {
 			func() {
-				if msgContext.Locker.TryLock() {
-					defer msgContext.Locker.Unlock()
-					if !msgContext.IsStop {
-						msgContext.IsStop = true
-						msgContext.MsgChan <- msg.Msg
-					}
-					delete(managerMsg, msg.EventId)
+				msgContext.Locker.Lock()
+				defer msgContext.Locker.Unlock()
+				if !msgContext.IsStop {
+					msgContext.IsStop = true
+					msgContext.MsgChan <- msg.Msg
 				}
+				delete(managerMsg, msg.EventId)
 			}()
 		} else {
 			glog.Warnf("消息通道不存在：%s\n", msg.EventId)
