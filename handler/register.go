@@ -12,6 +12,7 @@ type Client struct {
 	Conn   *websocket.Conn
 	UUID   string
 	Domain string
+	Locker sync.Mutex // 锁，同一个 client 发消息必须加锁，不然并发的时候报错
 }
 
 type Manager struct {

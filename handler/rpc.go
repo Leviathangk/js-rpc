@@ -1,12 +1,17 @@
 package handler
 
 import (
-	"net/http"
-
 	"github.com/Leviathangk/go-glog/glog"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"net/http"
+	"sync"
 )
+
+type ManagerMsg struct {
+	m  map[string]*MsgContext
+	mu sync.RWMutex
+}
 
 const (
 	// 最大超时执行时间
@@ -18,7 +23,9 @@ var (
 	manager = NewManager()
 
 	// 统一管理消息端
-	managerMsg = map[string]*MsgContext{} // 事件 id:chan
+	managerMsg = &ManagerMsg{
+		m: make(map[string]*MsgContext),
+	}
 
 	// 将 http 升级到 ws
 	upgrader = websocket.Upgrader{
@@ -29,6 +36,26 @@ var (
 		},
 	}
 )
+
+func (s *ManagerMsg) Set(key string, value *MsgContext) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.m[key] = value
+}
+
+func (s *ManagerMsg) Delete(key string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	delete(s.m, key)
+}
+
+func (s *ManagerMsg) Get(key string) (value *MsgContext, ok bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	value, ok = s.m[key]
+	return
+}
 
 func Rpc(c *gin.Context) {
 	var err error

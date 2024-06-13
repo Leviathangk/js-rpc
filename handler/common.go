@@ -148,7 +148,7 @@ func wait(backChan chan gin.H, client *Client, msg map[string]any, timeout int) 
 	msgContext := &MsgContext{
 		MsgChan: msgChan,
 	}
-	managerMsg[eventId] = msgContext // 存储事件 eventId:通道
+	managerMsg.Set(eventId, msgContext) // 存储事件 eventId:通道
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -166,9 +166,9 @@ func wait(backChan chan gin.H, client *Client, msg map[string]any, timeout int) 
 	}()
 
 	// 发出消息
-	msgContext.Locker.Lock()
+	client.Locker.Lock()
 	err := client.Conn.WriteJSON(msg)
-	msgContext.Locker.Unlock()
+	client.Locker.Unlock()
 	if err != nil {
 		backChan <- gin.H{
 			"success": false,
@@ -193,14 +193,13 @@ func wait(backChan chan gin.H, client *Client, msg map[string]any, timeout int) 
 				break
 			} else if timeout == 0 {
 				func() {
-					if msgContext.Locker.TryLock() {
-						defer msgContext.Locker.Unlock()
-						if !msgContext.IsStop {
-							msgContext.IsStop = true
-							msgContext.TimeoutChan <- true
-						}
-						delete(managerMsg, eventId)
+					msgContext.Locker.Lock()
+					defer msgContext.Locker.Unlock()
+					if !msgContext.IsStop {
+						msgContext.IsStop = true
+						msgContext.TimeoutChan <- true
 					}
+					managerMsg.Delete(eventId)
 				}()
 				break
 			}

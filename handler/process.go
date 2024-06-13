@@ -58,7 +58,7 @@ func (c *Client) ProcessMsg(m []byte) {
 		manager.Domains[domain] = append(manager.Domains[domain], c)
 		glog.Debugf("向域名 %s 下存入机器 %s，当前数量：%d\n", domain, c.UUID, len(manager.Domains[domain]))
 	default:
-		if msgContext, ok := managerMsg[msg.EventId]; ok {
+		if msgContext, ok := managerMsg.Get(msg.EventId); ok {
 			func() {
 				msgContext.Locker.Lock()
 				defer msgContext.Locker.Unlock()
@@ -66,7 +66,7 @@ func (c *Client) ProcessMsg(m []byte) {
 					msgContext.IsStop = true
 					msgContext.MsgChan <- msg.Msg
 				}
-				delete(managerMsg, msg.EventId)
+				managerMsg.Delete(msg.EventId)
 			}()
 		} else {
 			glog.Warnf("消息通道不存在：%s\n", msg.EventId)
