@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Leviathangk/go-glog/glog"
 	"github.com/gin-gonic/gin"
 )
 
@@ -149,21 +148,6 @@ func wait(backChan chan gin.H, client *Client, msg map[string]any, timeout int) 
 		MsgChan: msgChan,
 	}
 	managerMsg.Set(eventId, msgContext) // 存储事件 eventId:通道
-
-	defer func() {
-		if r := recover(); r != nil {
-			glog.Errorln("Recovered in wait", r)
-
-			backChan <- gin.H{
-				"success": false,
-				"msg": gin.H{
-					"success": false,
-					"msg":     "运行失败，发生 panic 错误！",
-					"uuid":    client.UUID,
-				},
-			}
-		}
-	}()
 
 	// 发出消息
 	client.Locker.Lock()
