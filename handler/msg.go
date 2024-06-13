@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"sync"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,7 +17,6 @@ type MsgContext struct {
 	MsgChan     chan gin.H // 消息回传 chan
 	TimeoutChan chan bool  // 超时 chan
 	IsStop      bool       // 是否已停止
-	Locker      sync.Mutex // 锁
 }
 
 type Message struct {

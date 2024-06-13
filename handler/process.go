@@ -60,8 +60,6 @@ func (c *Client) ProcessMsg(m []byte) {
 	default:
 		if msgContext, ok := managerMsg.Get(msg.EventId); ok {
 			func() {
-				msgContext.Locker.Lock()
-				defer msgContext.Locker.Unlock()
 				if !msgContext.IsStop {
 					msgContext.IsStop = true
 					msgContext.MsgChan <- msg.Msg

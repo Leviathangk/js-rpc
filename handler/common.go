@@ -177,8 +177,6 @@ func wait(backChan chan gin.H, client *Client, msg map[string]any, timeout int) 
 				break
 			} else if timeout == 0 {
 				func() {
-					msgContext.Locker.Lock()
-					defer msgContext.Locker.Unlock()
 					if !msgContext.IsStop {
 						msgContext.IsStop = true
 						msgContext.TimeoutChan <- true
