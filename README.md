@@ -5,9 +5,9 @@
 接口如下：  
 ![image.png](image.png)
 
-# pyDemo
+# rpc_api
 
-这是一个由 py 编写的例子
+这是一个由 py 编写的例子，也可以当做 api 工具使用
 
 ## 创建函数
 
